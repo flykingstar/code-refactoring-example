@@ -25,23 +25,39 @@ public class Statement {
     }
 
     public String show() {
-        int totalAmount = 0;
-        String result = String.format("Statement for %s", invoice.getCustomer());
-        StringBuilder stringBuilder = new StringBuilder(result);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
+        stringBuilder.append(formatPerformances());
+        stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(getTotalAmount())));
+        stringBuilder.append(String.format("You earned %s credits\n", getVolumeCredits()));
+        return stringBuilder.toString();
+    }
+
+    private StringBuilder formatPerformances() {
+        StringBuilder stringBuilder1 = new StringBuilder();
+        for (Performance performance : invoice.getPerformances()) {
+            Play play = plays.get(performance.getPlayId());
+            stringBuilder1.append(String.format(" %s: %s (%s seats)\n", play.getName(), formatUSD(getThisAmount(performance, play)), performance.getAudience()));
+        }
+        return stringBuilder1;
+    }
+
+    private double getVolumeCredits() {
         double volumeCredits = 0;
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            double thisAmount = getThisAmount(performance, play);
-
             volumeCredits += getVolumeCredits(performance, play);
-
-            stringBuilder.append(String.format(" %s: %s (%s seats)\n", play.getName(), formatUSD(thisAmount), performance.getAudience()));
-            totalAmount += thisAmount;
         }
-        stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(totalAmount)));
+        return volumeCredits;
+    }
 
-        stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
-        return stringBuilder.toString();
+    private int getTotalAmount() {
+        int totalAmount = 0;
+        for (Performance performance : invoice.getPerformances()) {
+            Play play = plays.get(performance.getPlayId());
+            totalAmount += getThisAmount(performance, play);
+        }
+        return totalAmount;
     }
 
     private double getVolumeCredits(Performance performance, Play play) {
