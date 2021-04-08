@@ -19,11 +19,11 @@ public class StatementTest {
 
     @Test
     public void test() {
-        String expected = "Statement for BigCo Hamlet: $650.00 (55 seats)\n" +
-                " As You Like It: $580.00 (35 seats)\n" +
-                " Othello: $500.00 (40 seats)\n" +
+        String expected = "Statement for BigCo Hamlet: $650.00 (55.0 seats)\n" +
+                " As You Like It: $580.00 (35.0 seats)\n" +
+                " Othello: $500.00 (40.0 seats)\n" +
                 "Amount owed is $1,730.00\n" +
-                "You earned 47 credits\n";
+                "You earned 47.0 credits\n";
         final String plays = "{" +
                 "\"hamlet\":{\"name\":\"Hamlet\",\"type\":\"tragedy\"}," +
                 "\"as-like\":{\"name\":\"As You Like It\",\"type\":\"comedy\"}," +

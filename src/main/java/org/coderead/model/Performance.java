@@ -10,7 +10,7 @@ public class Performance {
 
     private String playId;
 
-    private int audience;
+    private double audience;
 
     public String getPlayId() {
         return playId;
@@ -20,11 +20,11 @@ public class Performance {
         this.playId = playId;
     }
 
-    public int getAudience() {
+    public double getAudience() {
         return audience;
     }
 
-    public void setAudience(int audience) {
+    public void setAudience(double audience) {
         this.audience = audience;
     }
 }
