@@ -28,7 +28,7 @@ public class Statement {
         stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
         stringBuilder.append(formatPerformances());
         stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(getTotalAmount())));
-        stringBuilder.append(String.format("You earned %s credits\n", getVolumeCredits()));
+        stringBuilder.append(String.format("You earned %s credits\n", invoice.getVolumeCredits(plays)));
         return stringBuilder.toString();
     }
 
@@ -36,47 +36,22 @@ public class Statement {
         StringBuilder stringBuilder1 = new StringBuilder();
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            stringBuilder1.append(String.format(" %s: %s (%s seats)\n", play.getName(), formatUSD(getThisAmount(performance, play)), performance.getAudience()));
+            stringBuilder1.append(String.format(" %s: %s (%s seats)\n", play.getName(), formatUSD(getThisAmount(performance, play.getType())), performance.getAudience()));
         }
         return stringBuilder1;
-    }
-
-    private double getVolumeCredits() {
-        double volumeCredits = 0;
-        for (Performance performance : invoice.getPerformances()) {
-            Play play = plays.get(performance.getPlayId());
-            volumeCredits += getVolumeCredits(performance, play);
-        }
-        return volumeCredits;
     }
 
     private int getTotalAmount() {
         int totalAmount = 0;
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            totalAmount += getThisAmount(performance, play);
+            totalAmount += getThisAmount(performance, play.getType());
         }
         return totalAmount;
     }
 
-    private double getVolumeCredits(Performance performance, Play play) {
-        return getCalculatorInterface(play).getVolumeCredits(performance);
-    }
-
-    private ICalculatorInterface getCalculatorInterface(Play play) {
-        ICalculatorInterface calculatorInterface = null;
-        if ("tragedy".equals(play.getType())) {
-            calculatorInterface = new TragedyCalcultor();
-        }
-
-        if ("comedy".equals(play.getType())) {
-            calculatorInterface = new ComedyCalculator();
-        }
-        return calculatorInterface;
-    }
-
-    private double getThisAmount(Performance performance, Play play) {
-        return getCalculatorInterface(play).getAmount(performance);
+    private double getThisAmount(Performance performance, String type) {
+        return AbstractPerformanceCalculator.of(type).getAmount(performance);
     }
 
     private String formatUSD(double amount) {

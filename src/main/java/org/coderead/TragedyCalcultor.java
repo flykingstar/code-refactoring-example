@@ -2,7 +2,7 @@ package org.coderead;
 
 import org.coderead.model.Performance;
 
-public class TragedyCalcultor implements ICalculatorInterface {
+public class TragedyCalcultor extends AbstractPerformanceCalculator {
     public TragedyCalcultor() {
     }
 
