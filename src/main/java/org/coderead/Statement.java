@@ -15,7 +15,6 @@ import java.util.Map;
  * @since 2020/10/11 0011
  */
 public class Statement {
-
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -61,62 +60,27 @@ public class Statement {
     }
 
     private double getVolumeCredits(Performance performance, Play play) {
-        double temp = 0;
+        return getCalculatorInterface(play).getVolumeCredits(performance);
+    }
+
+    private ICalculatorInterface getCalculatorInterface(Play play) {
+        ICalculatorInterface calculatorInterface = null;
         if ("tragedy".equals(play.getType())) {
-            temp = getTragedyVolumeCredits(performance);
+            calculatorInterface = new TragedyCalcultor();
         }
 
         if ("comedy".equals(play.getType())) {
-            temp = getComedyVolumeCredits(performance);
+            calculatorInterface = new ComedyCalculator();
         }
-        return temp;
+        return calculatorInterface;
     }
 
     private double getThisAmount(Performance performance, Play play) {
-        double thisAmount = 0;
-        switch (play.getType()) {
-            case "tragedy":
-                thisAmount = getTragedyAmount(performance);
-                break;
-            case "comedy":
-                thisAmount = getComedyAmount(performance);
-                break;
-            default:
-                throw new RuntimeException("unknown type:" + play.getType());
-        }
-        return thisAmount;
-    }
-
-    private double getComedyVolumeCredits(Performance performance) {
-        double max = Math.max(performance.getAudience() - 30, 0);
-        double floor = Math.floor(performance.getAudience() / 5);
-        return max + floor;
-    }
-
-    private double getTragedyVolumeCredits(Performance performance) {
-        return Math.max(performance.getAudience() - new Double(30), 0);
+        return getCalculatorInterface(play).getAmount(performance);
     }
 
     private String formatUSD(double amount) {
         return NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(amount / 100);
     }
 
-    private int getComedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 30000;
-        if (performance.getAudience() > 20) {
-            thisAmount += 10000 + 500 * (performance.getAudience() - 20);
-        }
-        thisAmount += 300 * performance.getAudience();
-        return thisAmount;
-    }
-
-    private int getTragedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 40000;
-        if (performance.getAudience() > 30) {
-            thisAmount += 1000 * (performance.getAudience() - 30);
-        }
-        return thisAmount;
-    }
 }
