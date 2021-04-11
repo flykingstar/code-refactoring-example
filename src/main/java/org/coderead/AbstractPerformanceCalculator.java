@@ -11,15 +11,16 @@ public abstract class AbstractPerformanceCalculator {
 
     public abstract int getAmount(Performance performance);
 
-    public static AbstractPerformanceCalculator of(String type) {
-        AbstractPerformanceCalculator calculatorInterface = null;
+    public static AbstractPerformanceCalculator of (String type){
         if ("tragedy".equals(type)) {
-            calculatorInterface = new TragedyCalcultor();
+            return new TragedyCalcultor();
         }
-
         if ("comedy".equals(type)) {
-            calculatorInterface = new ComedyCalculator();
+            return new ComedyCalculator();
         }
-        return calculatorInterface;
+        if ("action".equals(type)) {
+            return new ActionCalculator();
+        }
+        throw new IllegalArgumentException("wrong type");
     }
 }

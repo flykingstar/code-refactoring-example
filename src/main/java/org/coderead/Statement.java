@@ -36,7 +36,8 @@ public class Statement {
         StringBuilder stringBuilder1 = new StringBuilder();
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            stringBuilder1.append(String.format(" %s: %s (%s seats)\n", play.getName(), formatUSD(getThisAmount(performance, play.getType())), performance.getAudience()));
+            stringBuilder1.append(String.format(" %s: %s (%s seats)\n", play.getName(),
+                    formatUSD(getThisAmount(performance, play.getType())), performance.getAudience()));
         }
         return stringBuilder1;
     }
