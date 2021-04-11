@@ -22,13 +22,15 @@ public class StatementTest {
         String expected = "Statement for BigCo Hamlet: $650.00 (55.0 seats)\n" +
                 " As You Like It: $580.00 (35.0 seats)\n" +
                 " ji-xie-shi: $580.00 (35.0 seats)\n" +
+                " bai-she-zhuan: $580.00 (35.0 seats)\n" +
                 " Othello: $500.00 (40.0 seats)\n" +
-                "Amount owed is $2,310.00\n" +
-                "You earned 59.0 credits\n";
+                "Amount owed is $2,890.00\n" +
+                "You earned 71.0 credits\n";
         final String plays = "{" +
                 "\"hamlet\":{\"name\":\"Hamlet\",\"type\":\"tragedy\"}," +
                 "\"as-like\":{\"name\":\"As You Like It\",\"type\":\"comedy\"}," +
                 "\"ji-xie-shi\":{\"name\":\"ji-xie-shi\",\"type\":\"action\"}," +
+                "\"bai-she-zhuan\":{\"name\":\"bai-she-zhuan\",\"type\":\"love\"}," +
                 "\"othello\":{\"name\":\"Othello\",\"type\":\"tragedy\"}" +
                 "}";
 
@@ -37,6 +39,7 @@ public class StatementTest {
                 "{\"playId\":\"hamlet\",\"audience\":55}" +
                 "{\"playId\":\"as-like\",\"audience\":35}" +
                 "{\"playId\":\"ji-xie-shi\",\"audience\":35}" +
+                "{\"playId\":\"bai-she-zhuan\",\"audience\":35}" +
                 "{\"playId\":\"othello\",\"audience\":40}" +
                 "]" +
                 "}";

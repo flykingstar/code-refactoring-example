@@ -2,8 +2,8 @@ package org.coderead;
 
 import org.coderead.model.Performance;
 
-public class TragedyCalcultor extends AbstractPerformanceCalculator {
-    public TragedyCalcultor() {
+public class TragedyCalculator extends AbstractPerformanceCalculator {
+    public TragedyCalculator() {
     }
 
     @Override
