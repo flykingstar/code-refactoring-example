@@ -30,7 +30,7 @@ public class Statement {
         double volumeCredits = 0;
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            volumeCredits = getVolumeCredits(volumeCredits, performance, play);
+            volumeCredits += getVolumeCredits(performance, play);
             totalAmount += getThisAmount(performance, play);
             double thisAmount;
             switch (play.getType()) {
@@ -54,14 +54,14 @@ public class Statement {
         return NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(thisAmount / 100);
     }
 
-    private double getVolumeCredits(double volumeCredits, Performance performance, Play play) {
+    private double getVolumeCredits(Performance performance, Play play) {
         if("tragedy".equals(play.getType())){
-            volumeCredits = getTragedyVolumeCredits(volumeCredits, performance);
+            return getTragedyVolumeCredits(performance);
         }
         if ("comedy".equals(play.getType())) {
-            volumeCredits += getComedyVolumeCredits(performance);
+            return getComedyVolumeCredits(performance);
         }
-        return volumeCredits;
+        return 0;
     }
 
     private double getComedyVolumeCredits(Performance performance) {
@@ -70,9 +70,8 @@ public class Statement {
         return floor + max;
     }
 
-    private double getTragedyVolumeCredits(double volumeCredits, Performance performance) {
-        volumeCredits += Math.max(performance.getAudience() - 30, 0);
-        return volumeCredits;
+    private double getTragedyVolumeCredits(Performance performance) {
+        return Math.max(performance.getAudience() - 30, 0);
     }
 
     private double getThisAmount(Performance performance, Play play) {
