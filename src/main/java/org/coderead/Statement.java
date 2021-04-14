@@ -3,6 +3,7 @@ package org.coderead;
 import org.coderead.model.Invoice;
 import org.coderead.model.Performance;
 import org.coderead.model.Play;
+
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -43,8 +44,7 @@ public class Statement {
     private void formatTotalAmount(StringBuilder stringBuilder) {
         double totalAmount = 0;
         for (Performance performance : invoice.getPerformances()) {
-            Play play = plays.get(performance.getPlayId());
-            totalAmount += getThisAmount(performance, play.getType());
+            totalAmount += invoice.getAmount(plays, performance);
         }
         stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(totalAmount)));
     }
@@ -52,7 +52,7 @@ public class Statement {
     private void formatPerformance(StringBuilder stringBuilder) {
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(getThisAmount(performance, play.getType())), performance.getAudience()));
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(invoice.getThisAmount(performance, play.getType())), performance.getAudience()));
         }
     }
 
@@ -70,9 +70,5 @@ public class Statement {
         }
     }
 
-
-    private double getThisAmount(Performance performance, String type) {
-        return CalculatorInterface.getCalculatorInterface(type).getAmount(performance);
-    }
 
 }

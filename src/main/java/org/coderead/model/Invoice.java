@@ -1,6 +1,10 @@
 package org.coderead.model;
 
+import org.coderead.CalculatorInterface;
+import org.coderead.Statement;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * 发票
@@ -28,5 +32,16 @@ public class Invoice {
 
     public void setPerformances(List<Performance> performances) {
         this.performances = performances;
+    }
+
+    public double getThisAmount(Performance performance, String type) {
+        return CalculatorInterface.getCalculatorInterface(type).getAmount(performance);
+    }
+
+    public double getAmount(Map<String, Play> plays, Performance performance) {
+        double temp;
+        Play play = plays.get(performance.getPlayId());
+        temp = getThisAmount(performance, play.getType());
+        return temp;
     }
 }
