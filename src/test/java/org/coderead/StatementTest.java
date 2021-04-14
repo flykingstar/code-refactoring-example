@@ -23,13 +23,15 @@ public class StatementTest {
                 " As You Like It: $580.00 (35 seats)\n" +
                 " Othello: $500.00 (40 seats)\n" +
                 " Gone with wind: $500.00 (40 seats)\n" +
-                "Amount owed is $2,230.00\n" +
-                "You earned 57.0 credits\n";
+                " shui hu zhuan: $500.00 (40 seats)\n" +
+                "Amount owed is $2,730.00\n" +
+                "You earned 67.0 credits\n";
         final String plays = "{" +
                 "\"hamlet\":{\"name\":\"Hamlet\",\"type\":\"tragedy\"}," +
                 "\"as-like\":{\"name\":\"As You Like It\",\"type\":\"comedy\"}," +
                 "\"othello\":{\"name\":\"Othello\",\"type\":\"tragedy\"}," +
-                "\"gww\":{\"name\":\"Gone with wind\",\"type\":\"love\"}" +
+                "\"gww\":{\"name\":\"Gone with wind\",\"type\":\"love\"}," +
+                "\"shz\":{\"name\":\"shui hu zhuan\",\"type\":\"action\"}" +
                 "}";
 
         final String invoices = "{" +
@@ -38,6 +40,7 @@ public class StatementTest {
                 "{\"playId\":\"as-like\",\"audience\":35}" +
                 "{\"playId\":\"othello\",\"audience\":40}" +
                 "{\"playId\":\"gww\",\"audience\":40}" +
+                "{\"playId\":\"shz\",\"audience\":40}" +
                 "]" +
                 "}";
 
