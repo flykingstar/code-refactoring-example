@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public class Statement {
 
+    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
+    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -62,32 +64,22 @@ public class Statement {
 
     private double getVolumeCredits(Performance performance, String type) {
         if("tragedy".equals(type)){
-            return getTragedyVolumeCredits(performance);
+            return tragedyCalculator.getVolumeCredits(performance);
         }
         if ("comedy".equals(type)) {
-            return getComedyVolumeCredits(performance);
+            return comedyCalculator.getVolumeCredits(performance);
         }
         return 0;
-    }
-
-    private double getComedyVolumeCredits(Performance performance) {
-        int max = Math.max(performance.getAudience() - 30, 0);
-        double floor = Math.floor(performance.getAudience() / 5);
-        return floor + max;
-    }
-
-    private double getTragedyVolumeCredits(Performance performance) {
-        return Math.max(performance.getAudience() - 30, 0);
     }
 
     private double getThisAmount(Performance performance, String type) {
         double thisAmount;
         switch (type) {
             case "tragedy":
-                thisAmount = getTragedyAmount(performance);
+                thisAmount = tragedyCalculator.getAmount(performance);
                 break;
             case "comedy":
-                thisAmount = getComedyAmount(performance);
+                thisAmount = comedyCalculator.getAmount(performance);
                 break;
             default:
                 throw new RuntimeException("unknown type:" + type);
@@ -95,20 +87,4 @@ public class Statement {
         return thisAmount;
     }
 
-    private double getComedyAmount(Performance performance) {
-        double thisAmount = 30000;
-        if (performance.getAudience() > 20) {
-            thisAmount += 10000 + 500 *(performance.getAudience() - 20);
-        }
-        thisAmount += 300 * performance.getAudience();
-        return thisAmount;
-    }
-
-    private double getTragedyAmount(Performance performance) {
-        double thisAmount = 40000;
-        if (performance.getAudience() > 30) {
-            thisAmount += 1000 * (performance.getAudience() - 30);
-        }
-        return thisAmount;
-    }
 }
