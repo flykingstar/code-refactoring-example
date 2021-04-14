@@ -15,8 +15,6 @@ import java.util.Map;
  */
 public class Statement {
 
-    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
-    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -63,28 +61,18 @@ public class Statement {
     }
 
     private double getVolumeCredits(Performance performance, String type) {
-        if("tragedy".equals(type)){
-            return tragedyCalculator.getVolumeCredits(performance);
+        CalculatorInterface calculatorInterface;
+        try {
+            calculatorInterface = CalculatorInterface.getCalculatorInterface(type);
+            return calculatorInterface.getVolumeCredits(performance);
+        } catch (Exception e) {
+            throw new RuntimeException("unknown type:" + type);
         }
-        if ("comedy".equals(type)) {
-            return comedyCalculator.getVolumeCredits(performance);
-        }
-        return 0;
     }
 
+
     private double getThisAmount(Performance performance, String type) {
-        double thisAmount;
-        switch (type) {
-            case "tragedy":
-                thisAmount = tragedyCalculator.getAmount(performance);
-                break;
-            case "comedy":
-                thisAmount = comedyCalculator.getAmount(performance);
-                break;
-            default:
-                throw new RuntimeException("unknown type:" + type);
-        }
-        return thisAmount;
+        return CalculatorInterface.getCalculatorInterface(type).getAmount(performance);
     }
 
 }

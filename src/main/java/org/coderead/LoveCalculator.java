@@ -2,8 +2,8 @@ package org.coderead;
 
 import org.coderead.model.Performance;
 
-public class TragedyCalculator implements CalculatorInterface {
-    public TragedyCalculator() {
+public class LoveCalculator implements CalculatorInterface {
+    public LoveCalculator() {
     }
 
     @Override

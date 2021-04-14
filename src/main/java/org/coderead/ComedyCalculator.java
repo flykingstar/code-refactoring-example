@@ -2,7 +2,7 @@ package org.coderead;
 
 import org.coderead.model.Performance;
 
-public class ComedyCalculator implements CalculatorInteface {
+public class ComedyCalculator implements CalculatorInterface {
     public ComedyCalculator() {
     }
 
