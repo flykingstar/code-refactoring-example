@@ -26,39 +26,45 @@ public class Statement {
     public String show() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
-        double totalAmount = 0;
+        formatPerformance(stringBuilder);
+        formatTotalAmount(stringBuilder);
+        formatVolumeCredits(stringBuilder);
+        return stringBuilder.toString();
+    }
+
+    private void formatVolumeCredits(StringBuilder stringBuilder) {
         double volumeCredits = 0;
         for (Performance performance : invoice.getPerformances()) {
+            volumeCredits += getVolumeCredits(performance, plays.get(performance.getPlayId()).getType());
+        }
+        stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
+    }
+
+    private void formatTotalAmount(StringBuilder stringBuilder) {
+        double totalAmount = 0;
+        for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            volumeCredits += getVolumeCredits(performance, play);
-            totalAmount += getThisAmount(performance, play);
-            double thisAmount;
-            switch (play.getType()) {
-                case "tragedy":
-                    thisAmount = getTragedyAmount(performance);
-                    break;
-                case "comedy":
-                    thisAmount = getComedyAmount(performance);
-                    break;
-                default:
-                    throw new RuntimeException("unknown type:" + play.getType());
-            }
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(thisAmount), performance.getAudience()));
+            totalAmount += getThisAmount(performance, play.getType());
         }
         stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(totalAmount)));
-        stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
-        return stringBuilder.toString();
+    }
+
+    private void formatPerformance(StringBuilder stringBuilder) {
+        for (Performance performance : invoice.getPerformances()) {
+            Play play = plays.get(performance.getPlayId());
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(getThisAmount(performance, play.getType())), performance.getAudience()));
+        }
     }
 
     private String formatUSD(double thisAmount) {
         return NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(thisAmount / 100);
     }
 
-    private double getVolumeCredits(Performance performance, Play play) {
-        if("tragedy".equals(play.getType())){
+    private double getVolumeCredits(Performance performance, String type) {
+        if("tragedy".equals(type)){
             return getTragedyVolumeCredits(performance);
         }
-        if ("comedy".equals(play.getType())) {
+        if ("comedy".equals(type)) {
             return getComedyVolumeCredits(performance);
         }
         return 0;
@@ -74,9 +80,9 @@ public class Statement {
         return Math.max(performance.getAudience() - 30, 0);
     }
 
-    private double getThisAmount(Performance performance, Play play) {
+    private double getThisAmount(Performance performance, String type) {
         double thisAmount;
-        switch (play.getType()) {
+        switch (type) {
             case "tragedy":
                 thisAmount = getTragedyAmount(performance);
                 break;
@@ -84,7 +90,7 @@ public class Statement {
                 thisAmount = getComedyAmount(performance);
                 break;
             default:
-                throw new RuntimeException("unknown type:" + play.getType());
+                throw new RuntimeException("unknown type:" + type);
         }
         return thisAmount;
     }
