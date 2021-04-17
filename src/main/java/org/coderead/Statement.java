@@ -27,11 +27,10 @@ public class Statement {
     public String show() {
         int totalAmount = 0;
         int volumeCredits = 0;
+        StringBuilder stringBuilder = new StringBuilder();
         String result = String.format("Statement for %s", invoice.getCustomer());
-        StringBuilder stringBuilder = new StringBuilder(result);
-
-        Locale locale = new Locale("en", "US");
-        NumberFormat format = NumberFormat.getCurrencyInstance(locale);
+        stringBuilder.append(result);
+        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
 
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
