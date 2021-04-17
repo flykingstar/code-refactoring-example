@@ -1,6 +1,7 @@
 package org.coderead.model;
 
 import org.coderead.Statement;
+import org.coderead.calculator.AbstractCalculator;
 
 import java.util.List;
 import java.util.Map;
@@ -33,13 +34,13 @@ public class Invoice {
         this.performances = performances;
     }
 
-    public double getVolumeCredits(Map<String, Play> plays, Performance performance, Statement statement) {
+    public double getVolumeCredits(Map<String, Play> plays, Performance performance) {
         Play play = plays.get(performance.getPlayId());
-        return statement.getVolumeCredits(performance, play);
+        return AbstractCalculator.of(play.getType()).getVolumeCredits(performance);
     }
 
-    public int getThisAmount(Performance performance1, Map<String, Play> plays, Statement statement) {
+    public int getThisAmount(Performance performance1, Map<String, Play> plays) {
         Play play = plays.get(performance1.getPlayId());
-        return statement.getThisAmount(performance1, play.getType());
+        return AbstractCalculator.of(play.getType()).getAmount(performance1);
     }
 }

@@ -1,8 +1,6 @@
 package org.coderead;
 
-import org.coderead.calculator.ComedyCalculator;
 import org.coderead.calculator.AbstractCalculator;
-import org.coderead.calculator.TragedyCalculator;
 import org.coderead.model.Invoice;
 import org.coderead.model.Performance;
 import org.coderead.model.Play;
@@ -31,15 +29,15 @@ public class Statement {
         stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
         formatThisAmount(stringBuilder);
         formatTotalAmount(stringBuilder);
-        formatCredits(stringBuilder, plays);
+        formatCredits(stringBuilder);
         return stringBuilder.toString();
     }
 
-    private void formatCredits(StringBuilder stringBuilder, Map<String, Play> plays) {
+    private void formatCredits(StringBuilder stringBuilder) {
         double volumeCredits = 0;
+
         for (Performance performance : invoice.getPerformances()) {
-            double temp = invoice.getVolumeCredits(plays, performance, this);
-            volumeCredits += temp;
+            volumeCredits += invoice.getVolumeCredits(plays, performance);
         }
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
     }
@@ -47,31 +45,21 @@ public class Statement {
     private void formatTotalAmount(StringBuilder stringBuilder) {
         int totalAmount = 0;
         for (Performance performance1 : invoice.getPerformances()) {
-            int temp = invoice.getThisAmount(performance1,plays, this);
-            totalAmount += temp;
+            totalAmount += invoice.getThisAmount(performance1,plays);
         }
         stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(totalAmount)));
     }
 
     private void formatThisAmount(StringBuilder stringBuilder) {
         for (Performance performance2 : invoice.getPerformances()) {
-            Play play2 = plays.get(performance2.getPlayId());
-            int thisAmount = getThisAmount(performance2, play2.getType());
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play2.getName(),
-                    formatUSD(thisAmount), performance2.getAudience()));
+            Play play = plays.get(performance2.getPlayId());
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(),
+                    formatUSD(AbstractCalculator.of(play.getType()).getAmount(performance2)), performance2.getAudience()));
         }
-    }
-
-    public double getVolumeCredits(Performance performance, Play play) {
-        return AbstractCalculator.of(play.getType()).getVolumeCredits(performance);
     }
 
     private String formatUSD(int thisAmount) {
         return NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(thisAmount / 100);
-    }
-
-    public int getThisAmount(Performance performance, String type) {
-        return AbstractCalculator.of(type).getAmount(performance);
     }
 
 
