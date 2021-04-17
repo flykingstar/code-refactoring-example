@@ -1,5 +1,8 @@
 package org.coderead;
 
+import org.coderead.calculator.ComedyCalculator;
+import org.coderead.calculator.AbstractCalculator;
+import org.coderead.calculator.TragedyCalculator;
 import org.coderead.model.Invoice;
 import org.coderead.model.Performance;
 import org.coderead.model.Play;
@@ -63,24 +66,7 @@ public class Statement {
     }
 
     private double getVolumeCredits(Performance performance, Play play) {
-        return getCalculatorByType(play.getType()).getVolumeCredits(performance);
-    }
-
-    private ICalculator getCalculatorByType(String type) {
-        try {
-            return (ICalculator) Class.forName(getPackageName() + "." +
-                    getTragedy(type) + "Calculator").getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("type name [%s] is wrong",type));
-        }
-    }
-
-    private String getTragedy(String type) {
-        return type.substring(0, 1).toUpperCase() + type.substring(1);
-    }
-
-    private String getPackageName() {
-        return getClass().getPackage().getName();
+        return AbstractCalculator.of(play.getType()).getVolumeCredits(performance);
     }
 
     private String formatUSD(int thisAmount) {
@@ -88,7 +74,7 @@ public class Statement {
     }
 
     private int getThisAmount(Performance performance, Play play) {
-        return getCalculatorByType(play.getType()).getAmount(performance);
+        return AbstractCalculator.of(play.getType()).getAmount(performance);
     }
 
 

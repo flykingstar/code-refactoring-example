@@ -1,9 +1,9 @@
-package org.coderead;
+package org.coderead.calculator;
 
 import org.coderead.model.Performance;
 
-public class TragedyCalculator implements ICalculator{
-    public TragedyCalculator() {
+public class LoveCalculator extends AbstractCalculator {
+    public LoveCalculator() {
     }
 
     @Override
