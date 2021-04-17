@@ -26,38 +26,68 @@ public class Statement {
 
     public String show() {
         StringBuilder stringBuilder = new StringBuilder();
-        String result = String.format("Statement for %s", invoice.getCustomer());
-        stringBuilder.append(result);
-        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
+        stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
+        formatThisAmount(stringBuilder);
+        formatTotalAmount(stringBuilder);
+        formatCredits(stringBuilder);
+        return stringBuilder.toString();
+    }
 
-        int volumeCredits = 0;
-        int totalAmount = 0;
+    private void formatCredits(StringBuilder stringBuilder) {
+        double volumeCredits = 0;
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            int thisAmount;
-            switch (play.getType()) {
-                case "tragedy":
-                    thisAmount = getTragedyAmount(performance);
-                    break;
-                case "comedy":
-                    thisAmount = getComedyAmount(performance);
-                    break;
-                default:
-                    throw new RuntimeException("unknown type:" + play.getType());
-            }
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount / 100), performance.getAudience()));
-            totalAmount += thisAmount;
-            if ("tragedy".equals(play.getType())) {
-                volumeCredits += getTragedyVolumeCredits(performance);
-            }
-            if ("comedy".equals(play.getType())) {
-                volumeCredits += getComedyVolumeCredits(performance);
-            }
-
+            volumeCredits += getVolumeCredits(performance, play);
         }
-        stringBuilder.append(String.format("Amount owed is %s\n", format.format(totalAmount / 100)));
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
-        return stringBuilder.toString();
+    }
+
+    private void formatTotalAmount(StringBuilder stringBuilder) {
+        int totalAmount = 0;
+        for (Performance performance1 : invoice.getPerformances()) {
+            Play play1 = plays.get(performance1.getPlayId());
+            totalAmount += getThisAmount(performance1, play1);
+        }
+        stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(totalAmount)));
+    }
+
+    private void formatThisAmount(StringBuilder stringBuilder) {
+        for (Performance performance2 : invoice.getPerformances()) {
+            Play play2 = plays.get(performance2.getPlayId());
+            int thisAmount = getThisAmount(performance2, play2);
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play2.getName(),
+                    formatUSD(thisAmount), performance2.getAudience()));
+        }
+    }
+
+    private double getVolumeCredits(Performance performance, Play play) {
+        double tempCredits = 0;
+        if ("tragedy".equals(play.getType())) {
+            tempCredits = getTragedyVolumeCredits(performance);
+        }
+        if ("comedy".equals(play.getType())) {
+            tempCredits = getComedyVolumeCredits(performance);
+        }
+        return tempCredits;
+    }
+
+    private String formatUSD(int thisAmount) {
+        return NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(thisAmount / 100);
+    }
+
+    private int getThisAmount(Performance performance, Play play) {
+        int thisAmount;
+        switch (play.getType()) {
+            case "tragedy":
+                thisAmount = getTragedyAmount(performance);
+                break;
+            case "comedy":
+                thisAmount = getComedyAmount(performance);
+                break;
+            default:
+                throw new RuntimeException("unknown type:" + play.getType());
+        }
+        return thisAmount;
     }
 
     private double getComedyVolumeCredits(Performance performance) {
