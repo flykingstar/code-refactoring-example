@@ -63,14 +63,24 @@ public class Statement {
     }
 
     private double getVolumeCredits(Performance performance, Play play) {
-        double tempCredits = 0;
-        if ("tragedy".equals(play.getType())) {
-            tempCredits = tragedyCalculator.getVolumeCredits(performance);
+        return getCalculatorByType(play.getType()).getVolumeCredits(performance);
+    }
+
+    private ICalculator getCalculatorByType(String type) {
+        try {
+            return (ICalculator) Class.forName(getPackageName() + "." +
+                    getTragedy(type) + "Calculator").getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("type name [%s] is wrong",type));
         }
-        if ("comedy".equals(play.getType())) {
-            tempCredits = comedyCalculator.getVolumeCredits(performance);
-        }
-        return tempCredits;
+    }
+
+    private String getTragedy(String type) {
+        return type.substring(0, 1).toUpperCase() + type.substring(1);
+    }
+
+    private String getPackageName() {
+        return getClass().getPackage().getName();
     }
 
     private String formatUSD(int thisAmount) {
@@ -78,18 +88,7 @@ public class Statement {
     }
 
     private int getThisAmount(Performance performance, Play play) {
-        int thisAmount;
-        switch (play.getType()) {
-            case "tragedy":
-                thisAmount = tragedyCalculator.getAmount(performance);
-                break;
-            case "comedy":
-                thisAmount = comedyCalculator.getAmount(performance);
-                break;
-            default:
-                throw new RuntimeException("unknown type:" + play.getType());
-        }
-        return thisAmount;
+        return getCalculatorByType(play.getType()).getAmount(performance);
     }
 
 
