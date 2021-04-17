@@ -1,6 +1,18 @@
-package org.coderead;public class ComedyCalculator{	public ComedyCalculator()	{	}private double getComedyVolumeCredits(org.coderead.model.Performance performance) {
-        return java.lang.Math.max(performance.getAudience() - 30, 0) + java.lang.Math.floor(performance.getAudience() / 5);
-    }private int getComedyAmount(org.coderead.model.Performance performance) {
+package org.coderead;
+
+import org.coderead.model.Performance;
+
+public class ComedyCalculator implements ICalculator{
+    public ComedyCalculator() {
+    }
+
+    @Override
+    public double getVolumeCredits(Performance performance) {
+        return Math.max(performance.getAudience() - 30, 0) + Math.floor(performance.getAudience() / 5);
+    }
+
+    @Override
+    public int getAmount(Performance performance) {
         int thisAmount;
         thisAmount = 30000;
         if (performance.getAudience() > 20) {
@@ -8,4 +20,5 @@ package org.coderead;public class ComedyCalculator{	public ComedyCalculator()	{	
         }
         thisAmount += 300 * performance.getAudience();
         return thisAmount;
-    }}
+    }
+}
