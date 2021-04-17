@@ -1,6 +1,9 @@
 package org.coderead.model;
 
+import org.coderead.Statement;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * 发票
@@ -28,5 +31,15 @@ public class Invoice {
 
     public void setPerformances(List<Performance> performances) {
         this.performances = performances;
+    }
+
+    public double getVolumeCredits(Map<String, Play> plays, Performance performance, Statement statement) {
+        Play play = plays.get(performance.getPlayId());
+        return statement.getVolumeCredits(performance, play);
+    }
+
+    public int getThisAmount(Performance performance1, Map<String, Play> plays, Statement statement) {
+        Play play = plays.get(performance1.getPlayId());
+        return statement.getThisAmount(performance1, play.getType());
     }
 }
