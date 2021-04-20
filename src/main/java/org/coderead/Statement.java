@@ -26,9 +26,9 @@ public class Statement {
 
     public String show() {
         int totalAmount = 0;
-        int volumeCredits = 0;
-        String result = String.format("Statement for %s", invoice.getCustomer());
-        StringBuilder stringBuilder = new StringBuilder(result);
+        double volumeCredits = 0;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
 
         Locale locale = new Locale("en", "US");
         NumberFormat format = NumberFormat.getCurrencyInstance(locale);
@@ -38,33 +38,56 @@ public class Statement {
             int thisAmount = 0;
             switch (play.getType()) {
                 case "tragedy":
-                    thisAmount = 40000;
-                    if (performance.getAudience() > 30) {
-                        thisAmount += 1000 * (performance.getAudience() - 30);
-                    }
+                    thisAmount = getTragedyAmount(performance);
                     break;
                 case "comedy":
-                    thisAmount = 30000;
-                    if (performance.getAudience() > 20) {
-                        thisAmount += 10000 + 500 *(performance.getAudience() - 20);
-                    }
-                    thisAmount += 300 * performance.getAudience();
+                    thisAmount = getComedyAmount(performance);
                     break;
                 default:
                     throw new RuntimeException("unknown type:" + play.getType());
             }
-
-            volumeCredits += Math.max(performance.getAudience() - 30, 0);
-
-            if ("comedy".equals(play.getType())) {
-                volumeCredits += Math.floor(performance.getAudience() / 5);
+            if("tragedy".equals(play.getType())){
+                volumeCredits += getTragedyCredits(performance);
             }
-
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount/100), performance.getAudience()));
+            if ("comedy".equals(play.getType())) {
+                volumeCredits += getComedyCredits(performance);
+            }
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(format, thisAmount), performance.getAudience()));
             totalAmount += thisAmount;
         }
-        stringBuilder.append(String.format("Amount owed is %s\n", format.format(totalAmount/100)));
+        stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(format, totalAmount)));
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
         return stringBuilder.toString();
+    }
+
+    private String formatUSD(NumberFormat format, int thisAmount) {
+        return format.format(thisAmount / 100);
+    }
+
+    private double getComedyCredits(Performance performance) {
+        return (double) Math.max(performance.getAudience() - 30, 0) + Math.floor(performance.getAudience() / 5);
+    }
+
+    private int getTragedyCredits(Performance performance) {
+        return Math.max(performance.getAudience() - 30, 0);
+    }
+
+    private int getComedyAmount(Performance performance) {
+        int thisAmount;
+        thisAmount = 30000;
+        if (performance.getAudience() > 20) {
+            thisAmount += 10000 + 500 *(performance.getAudience() - 20);
+        }
+        thisAmount += 300 * performance.getAudience();
+        return thisAmount;
+    }
+
+    private int getTragedyAmount(Performance performance) {
+        int thisAmount;
+        thisAmount = 40000;
+        if (performance.getAudience() > 30) {
+            thisAmount += 1000 * (performance.getAudience() - 30);
+        }
+        return thisAmount;
     }
 }
