@@ -4,6 +4,7 @@ import org.coderead.model.Invoice;
 import org.coderead.model.Performance;
 import org.coderead.model.Play;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -16,6 +17,8 @@ import java.util.Map;
  */
 public class Statement {
 
+    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
+    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -35,59 +38,59 @@ public class Statement {
 
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            int thisAmount = 0;
-            switch (play.getType()) {
-                case "tragedy":
-                    thisAmount = getTragedyAmount(performance);
-                    break;
-                case "comedy":
-                    thisAmount = getComedyAmount(performance);
-                    break;
-                default:
-                    throw new RuntimeException("unknown type:" + play.getType());
-            }
-            if("tragedy".equals(play.getType())){
-                volumeCredits += getTragedyCredits(performance);
-            }
-            if ("comedy".equals(play.getType())) {
-                volumeCredits += getComedyCredits(performance);
-            }
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(format, thisAmount), performance.getAudience()));
-            totalAmount += thisAmount;
+            volumeCredits += getVolumeCredits(performance, play);
+        }
+        for (Performance performance : invoice.getPerformances()) {
+            Play play = plays.get(performance.getPlayId());
+            totalAmount += getThisAmount(performance, play);
+        }
+        for (Performance performance : invoice.getPerformances()) {
+            Play play = plays.get(performance.getPlayId());
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatUSD(format, getThisAmount(performance, play)), performance.getAudience()));
         }
         stringBuilder.append(String.format("Amount owed is %s\n", formatUSD(format, totalAmount)));
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
         return stringBuilder.toString();
     }
 
-    private String formatUSD(NumberFormat format, int thisAmount) {
+    private double getThisAmount(Performance performance, Play play) {
+        ICalculatorInterface calculatorInterface = getInterfaceByType(play);
+        return calculatorInterface.getAmount(performance);
+    }
+
+    private double getVolumeCredits(Performance performance, Play play) {
+        double tempVolumeCredits = 0;
+        ICalculatorInterface calculatorInterface = getInterfaceByType(play);
+        tempVolumeCredits += calculatorInterface.getCredits(performance);
+        return tempVolumeCredits;
+    }
+
+    private ICalculatorInterface getInterfaceByType(Play play) {
+        ICalculatorInterface calculatorInterface = null;
+        try {
+            calculatorInterface = (ICalculatorInterface) Class.forName(getClassNameByType(play.getType()))
+                    .getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("unknown type:" + play.getType());
+        }
+        return calculatorInterface;
+    }
+
+    private String getClassNameByType(String type) {
+        return getPackageNameString() + "." + getTypeString(type) + "Calculator";
+    }
+
+    private String getTypeString(String type) {
+        return type.substring(0, 1).toUpperCase() + type.substring(1);
+    }
+
+    private String getPackageNameString() {
+        return this.getClass().getPackage().getName();
+    }
+
+
+
+    private String formatUSD(NumberFormat format, double thisAmount) {
         return format.format(thisAmount / 100);
-    }
-
-    private double getComedyCredits(Performance performance) {
-        return (double) Math.max(performance.getAudience() - 30, 0) + Math.floor(performance.getAudience() / 5);
-    }
-
-    private int getTragedyCredits(Performance performance) {
-        return Math.max(performance.getAudience() - 30, 0);
-    }
-
-    private int getComedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 30000;
-        if (performance.getAudience() > 20) {
-            thisAmount += 10000 + 500 *(performance.getAudience() - 20);
-        }
-        thisAmount += 300 * performance.getAudience();
-        return thisAmount;
-    }
-
-    private int getTragedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 40000;
-        if (performance.getAudience() > 30) {
-            thisAmount += 1000 * (performance.getAudience() - 30);
-        }
-        return thisAmount;
     }
 }
