@@ -31,6 +31,8 @@ public abstract class AbstractCalculator {
         return type.substring(0, 1).toUpperCase() + type.substring(1);
     }
 
+    
+
     private static String getPackageNameString() {
         return AbstractCalculator.class.getPackage().getName();
     }
