@@ -26,7 +26,7 @@ public class Statement {
 
     public String show() {
         int totalAmount = 0;
-        int volumeCredits = 0;
+        double volumeCredits = 0;
         String result = String.format("Statement for %s", invoice.getCustomer());
         StringBuilder stringBuilder = new StringBuilder(result);
 
@@ -60,7 +60,7 @@ public class Statement {
                 volumeCredits += Math.floor(performance.getAudience() / 5);
             }
 
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount/100), performance.getAudience()));
+            stringBuilder.append(String.format(" %s: %s (%s seats)\n", play.getName(), format.format(thisAmount/100), performance.getAudience()));
             totalAmount += thisAmount;
         }
         stringBuilder.append(String.format("Amount owed is %s\n", format.format(totalAmount/100)));
