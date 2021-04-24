@@ -31,14 +31,13 @@ public class Statement {
         int volumeCredits = 0;
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
-        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
-        formatThisAmount(stringBuilder, format, plays);
-        formatTotalAmount(totalAmount, stringBuilder, format);
-        formatVolumeCredits(volumeCredits, stringBuilder);
+        formatThisAmount(stringBuilder, NumberFormat.getCurrencyInstance(new Locale("en", "US")), plays);
+        formatTotalAmount(stringBuilder, NumberFormat.getCurrencyInstance(new Locale("en", "US")));
+        formatVolumeCredits(stringBuilder, volumeCredits);
         return stringBuilder.toString();
     }
 
-    private void formatVolumeCredits(int volumeCredits, StringBuilder stringBuilder) {
+    private void formatVolumeCredits(StringBuilder stringBuilder, int volumeCredits) {
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
             CalculatorAbstract calculator = CalculatorAbstract.getCalculatorByType(play);
@@ -47,7 +46,8 @@ public class Statement {
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
     }
 
-    private void formatTotalAmount(int totalAmount, StringBuilder stringBuilder, NumberFormat format) {
+    private void formatTotalAmount(StringBuilder stringBuilder, NumberFormat format) {
+        int totalAmount = 0;
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
             CalculatorAbstract calculator = CalculatorAbstract.getCalculatorByType(play);
