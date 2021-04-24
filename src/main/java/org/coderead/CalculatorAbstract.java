@@ -9,9 +9,9 @@ import org.coderead.model.Play;
  * @date 2021/4/24
  */
 public abstract class CalculatorAbstract {
-    abstract double getVolumeCredits(Performance performance);
+    public abstract double getVolumeCredits(Performance performance);
 
-    abstract int getAmount(Performance performance);
+    public abstract int getAmount(Performance performance);
 
     public static CalculatorAbstract getCalculatorByType(Play play) {
         try {
