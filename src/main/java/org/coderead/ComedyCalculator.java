@@ -2,15 +2,17 @@ package org.coderead;
 
 import org.coderead.model.Performance;
 
-public class ComedyCalculator {
+public class ComedyCalculator implements ICalculator {
     public ComedyCalculator() {
     }
 
-    double getComedyVolumeCredits(Performance performance) {
+    @Override
+    public double getVolumeCredits(Performance performance) {
         return Math.max(performance.getAudience() - 30, 0) + Math.floor(performance.getAudience() / 5);
     }
 
-    int getComedyAmount(Performance performance) {
+    @Override
+    public int getAmount(Performance performance) {
         int thisAmount;
         thisAmount = 30000;
         if (performance.getAudience() > 20) {

@@ -1,9 +1,11 @@
 package org.coderead;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import org.coderead.model.Invoice;
 import org.coderead.model.Performance;
 import org.coderead.model.Play;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -29,34 +31,40 @@ public class Statement {
     public String show() {
         int totalAmount = 0;
         int volumeCredits = 0;
-        String result = String.format("Statement for %s", invoice.getCustomer());
-        StringBuilder stringBuilder = new StringBuilder(result);
-
-        Locale locale = new Locale("en", "US");
-        NumberFormat format = NumberFormat.getCurrencyInstance(locale);
-
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
+        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
         for (Performance performance : invoice.getPerformances()) {
             Play play = plays.get(performance.getPlayId());
-            int thisAmount = 0;
-            switch (play.getType()) {
-                case "tragedy":
-                    thisAmount = tragedyCalculator.getTragedyAmount(performance);
-                    volumeCredits += tragedyCalculator.getTragedyVolumeCredits(performance);
-                    break;
-                case "comedy":
-                    thisAmount = comedyCalculator.getComedyAmount(performance);
-                    volumeCredits += comedyCalculator.getComedyVolumeCredits(performance);
-                    break;
-                default:
-                    throw new RuntimeException("unknown type:" + play.getType());
-            }
-
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount/100), performance.getAudience()));
+            ICalculator calculator = getCalculatorByType(play);
+            int thisAmount = calculator.getAmount(performance);
+            volumeCredits += calculator.getVolumeCredits(performance);
+            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), formatAmount(format, thisAmount), performance.getAudience()));
             totalAmount += thisAmount;
         }
-        stringBuilder.append(String.format("Amount owed is %s\n", format.format(totalAmount/100)));
+        stringBuilder.append(String.format("Amount owed is %s\n", formatAmount(format, totalAmount)));
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
         return stringBuilder.toString();
+    }
+
+    private String formatAmount(NumberFormat format, int thisAmount) {
+        return format.format(thisAmount / 100);
+    }
+
+    private ICalculator getCalculatorByType(Play play) {
+        try {
+            return (ICalculator) Class.forName(getCalculatorClassName(play.getType())).getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("unknown type:" + play.getType());
+        }
+    }
+
+    private String getCalculatorClassName(String type) {
+        return getPackageName() + "." + StringUtils.capitalize(type) + "Calculator";
+    }
+
+    private String getPackageName() {
+        return this.getClass().getPackage().getName();
     }
 
 }
