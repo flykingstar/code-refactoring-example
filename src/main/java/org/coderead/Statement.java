@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public class Statement {
 
+    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
+    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -38,26 +40,15 @@ public class Statement {
             int thisAmount = 0;
             switch (play.getType()) {
                 case "tragedy":
-                    thisAmount = 40000;
-                    if (performance.getAudience() > 30) {
-                        thisAmount += 1000 * (performance.getAudience() - 30);
-                    }
+                    thisAmount = tragedyCalculator.getTragedyAmount(performance);
+                    volumeCredits += tragedyCalculator.getTragedyVolumeCredits(performance);
                     break;
                 case "comedy":
-                    thisAmount = 30000;
-                    if (performance.getAudience() > 20) {
-                        thisAmount += 10000 + 500 *(performance.getAudience() - 20);
-                    }
-                    thisAmount += 300 * performance.getAudience();
+                    thisAmount = comedyCalculator.getComedyAmount(performance);
+                    volumeCredits += comedyCalculator.getComedyVolumeCredits(performance);
                     break;
                 default:
                     throw new RuntimeException("unknown type:" + play.getType());
-            }
-
-            volumeCredits += Math.max(performance.getAudience() - 30, 0);
-
-            if ("comedy".equals(play.getType())) {
-                volumeCredits += Math.floor(performance.getAudience() / 5);
             }
 
             stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount/100), performance.getAudience()));
@@ -67,4 +58,5 @@ public class Statement {
         stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
         return stringBuilder.toString();
     }
+
 }
