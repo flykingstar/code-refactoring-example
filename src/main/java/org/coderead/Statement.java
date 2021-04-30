@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public class Statement {
 
+    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
+    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
     private Invoice invoice;
     private Map<String, Play> plays;
 
@@ -37,12 +39,12 @@ public class Statement {
             int thisAmount = 0;
             switch (play.getType()) {
                 case "tragedy":
-                    thisAmount = getTragedyAmount(performance);
-                    volumeCredits += getTragedyCredits(performance);
+                    thisAmount = tragedyCalculator.getAmount(performance);
+                    volumeCredits += tragedyCalculator.getCredits(performance);
                     break;
                 case "comedy":
-                    thisAmount = getComedyAmount(performance);
-                    volumeCredits += getComedyCredits(performance);
+                    thisAmount = comedyCalculator.getAmount(performance);
+                    volumeCredits += comedyCalculator.getCredits(performance);
                     break;
                 default:
                     throw new RuntimeException("unknown type:" + play.getType());
@@ -56,32 +58,5 @@ public class Statement {
         return stringBuilder.toString();
     }
 
-    private int getTragedyCredits(Performance performance) {
-        return Math.max(performance.getAudience() - 30, 0);
-    }
 
-    private double getComedyCredits(Performance performance) {
-        double max = getTragedyCredits(performance);
-        double floor = Math.floor(performance.getAudience() / 5);
-        return max + floor;
-    }
-
-    private int getComedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 30000;
-        if (performance.getAudience() > 20) {
-            thisAmount += 10000 + 500 * (performance.getAudience() - 20);
-        }
-        thisAmount += 300 * performance.getAudience();
-        return thisAmount;
-    }
-
-    private int getTragedyAmount(Performance performance) {
-        int thisAmount;
-        thisAmount = 40000;
-        if (performance.getAudience() > 30) {
-            thisAmount += 1000 * (performance.getAudience() - 30);
-        }
-        return thisAmount;
-    }
 }
