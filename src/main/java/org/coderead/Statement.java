@@ -16,10 +16,8 @@ import java.util.Map;
  */
 public class Statement {
 
-    private final TragedyCalculator tragedyCalculator = new TragedyCalculator();
-    private final ComedyCalculator comedyCalculator = new ComedyCalculator();
-    private Invoice invoice;
-    private Map<String, Play> plays;
+    private final Invoice invoice;
+    private final Map<String, Play> plays;
 
     public Statement(Invoice invoice, Map<String, Play> plays) {
         this.invoice = invoice;
@@ -27,35 +25,48 @@ public class Statement {
     }
 
     public String show() {
-        int totalAmount = 0;
-        double volumeCredits = 0;
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.format("Statement for %s", invoice.getCustomer()));
         Locale locale = new Locale("en", "US");
         NumberFormat format = NumberFormat.getCurrencyInstance(locale);
-
-        for (Performance performance : invoice.getPerformances()) {
-            Play play = plays.get(performance.getPlayId());
-            int thisAmount = 0;
-            switch (play.getType()) {
-                case "tragedy":
-                    thisAmount = tragedyCalculator.getAmount(performance);
-                    volumeCredits += tragedyCalculator.getCredits(performance);
-                    break;
-                case "comedy":
-                    thisAmount = comedyCalculator.getAmount(performance);
-                    volumeCredits += comedyCalculator.getCredits(performance);
-                    break;
-                default:
-                    throw new RuntimeException("unknown type:" + play.getType());
-            }
-
-            stringBuilder.append(String.format(" %s: %s (%d seats)\n", play.getName(), format.format(thisAmount / 100), performance.getAudience()));
-            totalAmount += thisAmount;
-        }
-        stringBuilder.append(String.format("Amount owed is %s\n", format.format(totalAmount / 100)));
-        stringBuilder.append(String.format("You earned %s credits\n", volumeCredits));
+        dealThisAmount(stringBuilder, format);
+        dealTotalAmount(stringBuilder, locale);
+        dealCredits(stringBuilder);
         return stringBuilder.toString();
+    }
+
+    private void dealCredits(StringBuilder stringBuilder) {
+        double volumeCredits;
+        volumeCredits = invoice.getPerformances().stream().mapToDouble(perfomance -> invoice.getCredits(perfomance,plays.get(perfomance.getPlayId()))).sum();
+        stringBuilder.append(formatCredits(volumeCredits));
+    }
+
+    private void dealTotalAmount(StringBuilder stringBuilder, Locale locale) {
+        int totalAmount = invoice.getPerformances().stream().mapToInt(performance1 -> {
+            Play play = plays.get(performance1.getPlayId());
+            return invoice.getThisAmount(performance1, play.getType());
+        }).sum();
+        stringBuilder.append(formatTotalAmount(totalAmount, locale));
+    }
+
+    private void dealThisAmount(StringBuilder stringBuilder, NumberFormat format) {
+        invoice.getPerformances().forEach(performance -> {
+            Play play = plays.get(performance.getPlayId());
+            int thisAmount = invoice.getThisAmount(performance, play.getType());
+            formatThisAmount(stringBuilder, format, performance, play, thisAmount);
+        });
+    }
+
+    private StringBuilder formatThisAmount(StringBuilder stringBuilder, NumberFormat format, Performance performance, Play play, int thisAmount) {
+        return stringBuilder.append(String.format(" %s: %s (%d seats)" + "\n", play.getName(), format.format(thisAmount / 100), performance.getAudience()));
+    }
+
+    private String formatTotalAmount(int totalAmount, Locale locale) {
+        return "Amount owed is " + NumberFormat.getCurrencyInstance(locale).format(totalAmount / 100) + "\n";
+    }
+
+    private String formatCredits(double volumeCredits) {
+        return "You earned " + volumeCredits + " credits\n";
     }
 
 

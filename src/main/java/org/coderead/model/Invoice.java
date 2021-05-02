@@ -1,5 +1,7 @@
 package org.coderead.model;
 
+import org.coderead.CalculatorFactory;
+
 import java.util.List;
 
 /**
@@ -28,5 +30,13 @@ public class Invoice {
 
     public void setPerformances(List<Performance> performances) {
         this.performances = performances;
+    }
+
+    public int getThisAmount(Performance performance, String type) {
+        return CalculatorFactory.getInterfaceByType(type).getAmount(performance);
+    }
+
+    public double getCredits(Performance performance, Play play) {
+        return CalculatorFactory.getInterfaceByType(play.getType()).getCredits(performance);
     }
 }
