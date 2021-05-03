@@ -23,8 +23,8 @@ public class Statement {
         this.invoice = invoice;
         this.plays = plays;
     }
-
     public String show() {
+    //TODO 1、提炼方法表达意图 2、提炼接口 3、单一职责 4、流式操作 5、优化
         int totalAmount = 0;
         int volumeCredits = 0;
         StringBuilder sb = new StringBuilder();
