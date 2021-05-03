@@ -37,31 +37,34 @@ public class Statement {
     }
 
     private void dealCredits(StringBuilder sb) {
-        int volumeCredits = 0;
-        for (Performance performance : invoice.getPerformances()) {
-            Play play = plays.get(performance.getPlayId());
-            ICalculator calculator = getCalculatorByType(play.getType());
-            volumeCredits += calculator.getCredits(performance);
-        }
+        double volumeCredits = invoice.getPerformances().stream()
+                .mapToDouble(performance -> getCalculatorInterface(performance)
+                        .getCredits(performance)).sum();
         sb.append("You earned ").append(volumeCredits).append(" credits\n");
     }
 
+    private ICalculator getCalculatorInterface(Performance performance) {
+        Play play = plays.get(performance.getPlayId());
+        return getCalculatorByType(play.getType());
+    }
+
     private void dealTotalAmount(StringBuilder sb, NumberFormat format) {
-        int totalAmount = 0;
-        for (Performance performance : invoice.getPerformances()) {
-            Play play = plays.get(performance.getPlayId());
-            ICalculator calculator = getCalculatorByType(play.getType());
-            totalAmount += calculator.getAmount(performance);
-        }
-        sb.append("Amount owed is ").append(formatAmount(totalAmount, format)).append("\n");
+        double totalAmount = invoice.getPerformances().stream()
+                .mapToDouble(performance -> getCalculatorInterface(performance)
+                        .getAmount(performance)).sum();
+        sb.append("Amount owed is ").append(format.format(totalAmount / 100)).append("\n");
     }
 
     private void dealThisAmount(StringBuilder sb, NumberFormat format) {
-        for (Performance performance : invoice.getPerformances()) {
+        invoice.getPerformances().forEach(performance -> {
             Play play = plays.get(performance.getPlayId());
             ICalculator calculator = getCalculatorByType(play.getType());
-            sb.append(String.format(" %s: %s (%d seats)" + "\n", play.getName(), formatAmount(calculator.getAmount(performance), format), performance.getAudience()));
-        }
+            formatThisAmount(sb, format, performance, calculator.getAmount(performance), play.getName());
+        });
+    }
+
+    private StringBuilder formatThisAmount(StringBuilder sb, NumberFormat format, Performance performance, int thisAmount, String name) {
+        return sb.append(String.format(" %s: %s (%d seats)" + "\n", name, format.format(thisAmount / 100), performance.getAudience()));
     }
 
     private ICalculator getCalculatorByType(String type) {
@@ -73,7 +76,4 @@ public class Statement {
     }
 
 
-    private String formatAmount(int totalAmount, NumberFormat format) {
-        return format.format(totalAmount / 100);
-    }
 }
